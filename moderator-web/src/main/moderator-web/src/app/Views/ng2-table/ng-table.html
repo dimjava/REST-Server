@@ -1,0 +1,58 @@
+<table class="table dataTable" ngClass="{{config.className || ''}}" role="grid" style="width: 100%;">
+    <thead>
+    <tr role="row">
+        <th *ngFor="let column of columns" [ngTableSorting]="config" [column]="column"
+            (sortChanged)="onChangeTable($event)" ngClass="{{column.className || ''}}">
+            {{column.title}}
+            <i *ngIf="config && column.sort" class="pull-right fa"
+               [ngClass]="{'fa-chevron-down': column.sort === 'desc', 'fa-chevron-up': column.sort === 'asc'}"></i>
+        </th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngIf="showFilterRow">
+        <td *ngFor="let column of columns">
+            <input *ngIf="column.filtering" placeholder="{{column.filtering.placeholder}}"
+                   [ngTableFiltering]="column.filtering"
+                   class="form-control"
+                   style="width: auto;"
+                   (tableChanged)="onChangeTable(config)"/>
+        </td>
+    </tr>
+    <tr *ngFor="let row of rows">
+        <ng-container *ngFor="let column of columns">
+            <td *ngIf="!buttons[row.N - 1][column.name]" (click)="cellClick(row, column.name)"
+                [innerHtml]="sanitize(getData(row, column.name))"></td>
+            <td *ngIf="buttons[row.N - 1][column.name]">
+                <ng-container *ngIf="buttons[row.N - 1][column.name].type === 'simple'">
+                    <a *ngFor="let button of buttons[row.N - 1][column.name].buttons" [className]="button.styleClass"
+                       (click)="actionClick(button.action, row, column, button.name)">
+                        {{ button.title + ' ' }} <i class="" ngClass="{{button.styleIcon || ''}}"></i>
+                    </a>
+                </ng-container>
+                <!--<ng-container *ngIf="buttons[row.N - 1][column.name].type === 'group'">
+                    <div class="btn-group" role="group">
+                        <a *ngFor="let actionButton of column.actions.buttons" [className]="buttons[row.N - 1][column.name].styleClass"
+                           (click)="actionClick(actionButton.action, row, column)">
+                            <i class="" ngClass="{{{buttons[row.N - 1][column.name].styleIcon || ''}}"></i> {{ buttons[row.N - 1][column.name].title }}
+                        </a>
+                    </div>
+                </ng-container>-->
+                <ng-container *ngIf="buttons[row.N - 1][column.name].type === 'dropdown'">
+                    <div class="btn-group" dropdown>
+                        <button class="{{buttons[row.N - 1][column.name].dropdownStyleClass}}" dropdownToggle>
+                            {{buttons[row.N - 1][column.name].dropdownTitle}}
+                        </button>
+                        <div *dropdownMenu class="dropdown-menu" role="menu">
+                            <div *ngFor="let button of buttons[row.N - 1][column.name].buttons"
+                                 (click)="actionClick(button.action, row, column, button.name)">
+                                <button class="dropdown-item">{{button.title}}</button>
+                            </div>
+                        </div>
+                    </div>
+                </ng-container>
+            </td>
+        </ng-container>
+    </tr>
+    </tbody>
+</table>

@@ -1,0 +1,221 @@
+swagger: '2.0'
+info:
+  title: Reshigo API
+  version: "1.0"
+# the domain of the service
+host: server.reshigo.ru
+# array of all schemes that your API supports
+schemes:
+  - http
+# will be prefixed to all paths
+produces:
+  - application/json
+paths:
+  /user/feeds/{id}:
+    get:
+      summary: get feeds with id that are later than given id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: integer
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Feed'
+        204:
+          description: Much time since last feeds loading. Some feeds may be deleted.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Feed'
+definitions:
+  SyncNotification:
+    type: object
+    description: notification over websockets, that means necessity to sync feed list with the server
+    properties:
+      type:
+        type: string
+        description: value is always SYNC
+  Feed:
+    type: object
+    description: object that contains notification
+    properties:
+      id:
+        type: integer
+      notification:
+        type: string
+        description: UTF-8 string representing notification JSON
+      date:
+        type: integer
+        description: unix timestamp
+      user:
+        type: object
+        description: User from main API.
+      show:
+        type: boolean
+        description: If true then getShow this feed to user
+      echo:
+        type: boolean
+        description: True value means that this feed mirror of action that user performed. Used to sync multiple devices.
+  FundsChangeNotifiation:
+    type: object
+    description: Amount can be less than 0.
+    properties:
+      type:
+        type: string
+        description: value is always FUNDS
+      paymentId:
+        type: integer
+      text:
+        type: string
+        description: UTF-8 String to display in feeds list
+      amount:
+        type: integer
+      funds:
+        type: integer
+        description: funds left, after this change
+  MessageReceivedNotification:
+    type: object
+    properties:
+      type:
+        type: string
+        description: value is always MESSAGE
+      id:
+        type: integer
+        description: message's id
+      chatId:
+        type: integer
+      date:
+        type: integer
+      text:
+        type: string
+        description: UTF-8 to display in feeds list
+      data:
+        type: string
+        description: contains data if it is text message
+      height:
+        type: integer
+      width:
+        type: integer
+      messageType:
+        type: integer
+        description: 0 stands for text message and 1 for image
+  OrderMaturityChangeNotification:
+    type: object
+    description: only solver can receive such notification
+    properties:
+      type:
+        type: string
+        description: value is always ORDER_MATURITY
+      id:
+        type: integer
+        description: order's id
+      maturity:
+        type: integer
+        description: new maturity date timestamp
+      text:
+        type: string
+        description: UTF-8 to display in feeds list
+  OrderStatusChangeNotification:
+    type: object
+    properties:
+      type:
+        type: string
+        description: value is always ORDER_STATUS
+      text:
+        type: string
+        description: UTF-8 to display in feeds list
+      id:
+        type: integer
+        description: order's id
+      status:
+        type: string
+        description: order's status from list |
+          AVAILABLE, RESERVED, SOLVED, MODERATION, UNACCEPTABLE, EXPIRED, REJECTED, REJECTED_CONF,
+          REJECTED_SYS, REJECTED_APPEAL, REJECTED_MODER, DONE, DONE_MODER, DONE_SYS
+  PriceSuggestNotification:
+    type: object
+    description: notification for user when solver suggests price
+    properties:
+      type:
+        type: string
+        description: value is always PRICE_SUGGEST
+      text:
+        type: string
+        description: UTF-8 to display in feeds list
+      orderId:
+        type: integer
+      suggestionId:
+        type: integer
+      price:
+        type: integer
+      solver:
+        type: object
+        description: solver, who suggested price (User from main API)
+      comment:
+        type: string
+  PriceConfirmNotification:
+    type: object
+    description: notification for solver, when user accepts his price offer
+    properties:
+      type:
+        type: string
+        description: value is always PRICE_CONFIRM
+      text:
+        type: string
+        description: UTF-8 to display in feeds list
+      suggestionId:
+        type: integer
+  TextNotification:
+    type: object
+    properties:
+      type:
+        type: string
+        description: value is always PRICE_UPDATE
+      title:
+        type: string
+      body:
+        type: string
+      text:
+        type: string
+        description: is the same as body
+  PriceUpdateNotification:
+    type: object
+    description: notification not to getShow in feed list, tells that user changed price for his AVAILABLE order
+    properties:
+      type:
+        type: string
+        description: value is always PRICE_UPDATE
+      orderId:
+        type: integer
+      price:
+        type: integer
+        description: new price
+  LastReadMessageNotification:
+    type: object
+    description: notification not to getShow in feed list, tells about last read message in chat
+    properties:
+      type:
+        type: string
+        description: value is always LAST_READ
+      chatId:
+        type: integer
+      lastId:
+        type: integer
+        description: last message that companion read
+  ChatStatusChangeNotification:
+    type: object
+    description: notification about chat\'s status change, except cases, when order\'s status changed
+    properties:
+      type:
+        type: string
+        description: value is always CHAT_STATUS
+      id:
+        type: integer
+        description: chat\'s status
+      status:
+        type: string

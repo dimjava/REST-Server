@@ -1,0 +1,60 @@
+/*!
+ * Bootstrap Docs (http://getbootstrap.com)
+ * Copyright 2011-2014 Twitter, Inc.
+ * Licensed under the Creative Commons Attribution 3.0 Unported License. For
+ * details, see http://creativecommons.org/licenses/by/3.0/.
+ */
+
+body{
+    padding:50px;
+}
+.btn-group {
+    white-space: nowrap;
+}
+.btn-group .btn {
+    float: none;
+    display: inline-block;
+}
+.btn + .dropdown-toggle {
+    margin-left: -4px;
+}
+
+.fade.in {
+    opacity: 1;
+}
+
+.modal-lg {
+    max-width: 50% !important;
+    top: 25vh !important;
+}
+
+.modal.in .modal-dialog {
+    -webkit-transform: translate(0, 0);
+    -o-transform: translate(0, 0);
+    transform: translate(0, 0);
+}
+
+.modal-backdrop .fade .in {
+    opacity: 0.5 !important;
+}
+
+.modal-content {
+    max-height: 50vh;
+}
+
+.modal-header {
+    max-height: 10vh;
+}
+
+.modal-body {
+    max-height: 40vh;
+    overflow-y: auto;
+}
+
+.modal-backdrop.fade {
+    opacity: 0.5 !important;
+}
+
+.modal-open {
+    overflow-y: scroll;
+}

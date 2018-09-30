@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataset>
+    <pictures id="1" counter="1" order_id="1"/>
+    <pictures id="2" counter="1" order_id="2"/>
+    <pictures id="3" counter="1" order_id="3"/>
+    <pictures id="4" counter="1" order_id="4"/>
+    <pictures id="5" counter="2" order_id="4"/>
+    <pictures_data picture_id="1" path="/orders/1/1.jpg"/>
+    <pictures_data picture_id="2" path="/orders/2/2.jpg"/>
+    <pictures_data picture_id="3" path="/orders/3/3.jpg"/>
+    <pictures_data picture_id="4" path="/orders/4/4.jpg"/>
+    <pictures_data picture_id="5" path="/orders/4/5.jpg"/>
+</dataset>

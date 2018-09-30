@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataset>
+    <users name="antony" funds="0.00" reserved_funds="0.00" enabled="true" password="some" email="antony@email.ru" phone="2222" is_customer="true" attempts="0"/>
+    <authorities user_name="antony" authority="USER"/>
+    <payments/>
+    <subjects  id="0" subject="subj" subject_ru="subjru"/>
+    <themes id="0" theme="theme" theme_ru="themeru" subject_id="0"/>
+
+    <chats/>
+    <chats_users/>
+    <message_types/>
+    <message/>
+    <orders/>
+    <pictures/>
+    <pictures_data/>
+</dataset>

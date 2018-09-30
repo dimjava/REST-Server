@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataset>
+    <subjects  id="0" subject="subj" subject_ru="subjru"/>
+    <themes id="0" theme="theme" theme_ru="themeru" subject_id="0"/>
+    <users name="antony" enabled="true" password="some" email="antony@email.ru" phone="2222" is_customer="true" attempts="0"/>
+    <users name="dimjavas" enabled="true" password="some" email="dimjavas@email.ru" phone="2223" is_customer="false" attempts="0"/>
+    <chats id="1"/>
+    <chats id="2"/>
+    <chats id="3"/>
+    <message_types id="0" title="text"/>
+    <message id="1" chat_id="3" date="2016-01-01 18:00:00.00" user_name="dimjavas" data="date" is_read="true" message_type_id="0" width="320" height="480" path=""/>
+    <message id="2" chat_id="3" date="2016-01-01 19:00:00.00" user_name="antony" data="date" is_read="true" message_type_id="0" width="320" height="480" path=""/>
+    <message id="3" chat_id="3" date="2016-01-01 20:00:00.00" user_name="dimjavas" data="date" is_read="true" message_type_id="0" width="320" height="480" path=""/>
+    <message id="4" chat_id="3" date="2016-01-01 21:00:00.00" user_name="dimjavas" data="date" is_read="true" message_type_id="0" width="320" height="480" path=""/>
+    <message id="5" chat_id="3" date="2016-01-01 22:00:00.00" user_name="dimjavas" data="date" is_read="false" message_type_id="0" width="320" height="480" path=""/>
+    <message id="6" chat_id="3" date="2016-01-01 23:00:00.00" user_name="dimjavas" data="date" is_read="false" message_type_id="0" width="320" height="480" path=""/>
+    <chats_users chats_id="1" participants_name="antony"/>
+    <chats_users chats_id="2" participants_name="antony"/>
+    <chats_users chats_id="3" participants_name="antony"/>
+    <chats_users chats_id="3" participants_name="dimjavas"/>
+    <authorities user_name="antony" authority="USER"/>
+    <authorities user_name="dimjavas" authority="SOLVER"/>
+    <orders id="1" user_name="antony" status="RESERVED" date="2016-01-01 18:00:00.00" maturity_date="2025-01-01 18:00:00.00" theme_id="0" chat_id="1" price="80"/>
+    <orders id="2" user_name="antony" status="DONE" date="2016-01-01 18:00:00.00" maturity_date="2025-01-01 18:00:00.00" theme_id="0" chat_id="2" price="80"/>
+    <orders id="3" user_name="antony" status="RESERVED" date="2016-01-01 18:00:00.00" maturity_date="2025-01-01 18:00:00.00" theme_id="0" chat_id="3" price="80"/>
+    <pictures id="1" counter="1" order_id="1"/>
+    <pictures_data picture_id="1" path="/orders/1/1.jpg"/>
+</dataset>

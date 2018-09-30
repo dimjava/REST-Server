@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataset>
+    <subjects  id="0" subject="subj" subject_ru="subjru"/>
+    <themes id="0" theme="theme" theme_ru="themeru" subject_id="0"/>
+    <users name="antony" enabled="true" password="some" email="antony@email.ru" phone="2222" is_customer="true" funds="1000.00" reserved_funds="240.00" attempts="0"/>
+    <users name="dmitry" enabled="true" password="some" email="dmitry@email.ru" phone="2223" is_customer="true" funds="0.00" reserved_funds="0.00" attempts="0"/>
+    <payments/>
+    <chats id="1" status="CLOSED"/>
+    <chats id="2" status="CLOSED"/>
+    <chats id="3" status="OPEN"/>
+    <chats id="4" status="CLOSED"/>
+    <chats id="5" status="OPEN"/>
+
+    <chats_users chats_id="1" participants_name="antony"/>
+    <chats_users chats_id="2" participants_name="antony"/>
+    <chats_users chats_id="3" participants_name="antony"/>
+    <chats_users chats_id="4" participants_name="antony"/>
+    <chats_users chats_id="5" participants_name="antony"/>
+
+    <message_types/>
+    <message/>
+
+    <authorities user_name="antony" authority="USER"/>
+
+    <orders id="3" user_name="antony" solvername="dmitry" price="80" status="RESERVED" date="2016-01-01 20:00:00.00" maturity_date="2025-01-01 18:00:00.00" theme_id="0" chat_id="3"/>
+    <orders id="1" user_name="antony" status="AVAILABLE" price="80" date="2016-01-01 18:00:00.00" maturity_date="2025-01-01 18:00:00.00" theme_id="0" chat_id="1"/>
+    <orders id="2" user_name="antony" status="REJECTED" price="80" date="2016-01-01 19:00:00.00" maturity_date="2025-01-01 18:00:00.00" theme_id="0" chat_id="2"/>
+    <orders id="4" user_name="antony" status="DRAFT" price="80" date="2016-01-01 19:00:00.00" maturity_date="2025-01-01 18:00:00.00" theme_id="0" chat_id="4"/>
+    <orders id="5" user_name="antony" status="SOLVED" price="80" date="2016-01-01 19:00:00.00" maturity_date="2025-01-01 18:00:00.00" theme_id="0" chat_id="5" solvername="antony"/>
+    <pictures id="1" counter="1" order_id="1"/>
+    <pictures id="2" counter="1" order_id="2"/>
+    <pictures id="3" counter="1" order_id="3"/>
+    <pictures id="4" counter="1" order_id="4"/>
+    <pictures_data picture_id="1" path="/orders/1/1.jpg"/>
+    <pictures_data picture_id="2" path="/orders/2/2.jpg"/>
+    <pictures_data picture_id="3" path="/orders/3/3.jpg"/>
+    <pictures_data picture_id="4" path="/orders/4/4.jpg"/>
+</dataset>

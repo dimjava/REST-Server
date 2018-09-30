@@ -1,0 +1,33 @@
+<div style="position: fixed; left: 50%; transform: translate(-50%, 0%); width: 600px">
+    <div class="row">
+        <input class="form-control" #drp="bsDaterangepicker" bsDaterangepicker [(ngModel)]="bsRangeValue" style="width: 50%;">
+        <button class="btn btn-success" (click)="getReport()" style="width: 50%">Get Report</button>
+    </div>
+    <table class="table dataTable table-striped table-bordered" role="grid">
+        <thead>
+            <tr role="row">
+                <th>Description</th>
+                <th>Bonus funds</th>
+                <th>Real funds</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Received</td>
+                <td>{{receivedBonFunds}}</td>
+                <td>{{receivedRealFunds}}</td>
+            </tr>
+            <tr>
+                <td>Payed (without commission)</td>
+                <td>{{payedBonNoComm}}</td>
+                <td>{{payedRealNoComm}}</td>
+            </tr>
+            <tr>
+                <td>Payed (with commission)</td>
+                <td>{{payedBonCom}}</td>
+                <td>{{payedRealCom}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <button class="btn btn-info" (click)="consistencyCheck()" style="width: 100%">Get Consistency Check Results</button>
+</div>

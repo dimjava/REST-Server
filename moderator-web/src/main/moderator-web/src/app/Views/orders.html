@@ -1,0 +1,48 @@
+<button class="btn bnt-info" (click)="onChangeTable(config)" style="float: right"><i class="fa fa-refresh" aria-hidden="true"></i></button>
+<ng-table [config]="config"
+          [rows]="rows" [columns]="columns" [buttons]="buttons"
+          (cellClicked)="onCellClick($event)"
+          (tableChanged)="onChangeTable(config)">
+</ng-table>
+<pagination *ngIf="config.paging"
+            class="pagination-sm"
+            [(ngModel)]="page"
+            [totalItems]="length"
+            [itemsPerPage]="itemsPerPage"
+            [maxSize]="maxSize"
+            [boundaryLinks]="true"
+            [rotate]="false"
+            (pageChanged)="onChangeTable(config, $event)"
+            (numPages)="numPages = $event">
+</pagination>
+<button id="chatModalButton" class="btn btn-primary" (click)="lgModal.show()" hidden="true"></button>
+
+<div id="chatModal" bsModal #lgModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title pull-left">{{modalTitle}}</h4>
+                <button type="button" class="close pull-right" (click)="lgModal.hide(); cleanModal()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div id="chatModalBody" class="modal-body" [innerHtml]="modalText">
+            </div>
+            <div *ngIf="formLabel" class="modal-body">
+                <form (ngSubmit)="onSubmit(); lgModal.hide();" #feedForm="ngForm">
+                    <div class="form-group">
+                        <label for="name">{{formLabel}}</label>
+                        <input type="text" class="form-control" id="name" [(ngModel)]="formValue" name="formValue">
+                    </div>
+                    <button type="submit" class="btn btn-success">Commit</button>
+                </form>
+            </div>
+            <div *ngIf="modalButtons && modalButtons.length > 0" align="right">
+                <a *ngFor="let button of modalButtons" [className]="button.styleClass"
+                   (click)="config.api[button.action](button.name); lgModal.hide(); cleanModal()">
+                    {{ button.title + ' ' }} <i class="" ngClass="{{button.styleIcon || ''}}"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,1487 @@
+swagger: '2.0'
+info:
+  title: Reshigo API
+  version: "1.0"
+# the domain of the service
+host: server.reshigo.ru
+# array of all schemes that your API supports
+schemes:
+  - http
+# will be prefixed to all paths
+produces:
+  - application/json
+securityDefinitions:
+  basicAuth:
+    type: basic
+    description: Http Basic Authentication. Works over `HTTP`
+paths:
+  /password:
+    get:
+      description: Request 4-digit code to change password
+      tags:
+        - Consumer
+        - Solver
+      parameters:
+        - name: name
+          in: query
+          required: false
+          type: string
+        - name: phone
+          in: query
+          required: false
+          type: string
+      responses:
+        200:
+          description: OK
+        403:
+          description: User is disabled, contact support.
+        404:
+          description: User not found
+        500:
+          description: Some problem with phone number. Contact support.
+    put:
+      description: update password
+      tags:
+       - Consumer
+       - Solver
+      parameters:
+        - name: recovery
+          in: body
+          description: password field must be valid
+          required: true
+          schema:
+            $ref: '#/definitions/PassRecovery'
+      responses:
+        200:
+          description: OK
+        400:
+          description: object not valid
+        403:
+          description: user disabled, contact support
+        404:
+          description: user not found
+  /password/resend:
+    get:
+      description: resend password recovery code, if sms was not received
+      tags:
+        - Consumer
+        - Solver
+      parameters:
+        - name: name
+          in: query
+          required: false
+          type: string
+        - name: phone
+          in: query
+          required: false
+          type: string
+      responses:
+        200:
+          description: OK
+        403:
+          description: User is disabled, contact support.
+        404:
+          description: User not found
+        500:
+          description: Some problem with phone number. Contact support.
+  /code/validate:
+    post:
+      description: validate 4-digit code. if OK, should ask for new password and PUT it to /password. 3 attempts max.
+      tags:
+       - Consumer
+       - Solver
+      parameters:
+        - name: recovery
+          in: body
+          description: password field can be null
+          required: true
+          schema:
+            $ref: '#/definitions/PassRecovery'
+      responses:
+        200:
+          description: OK
+        400:
+          description: code or object not valid
+        403:
+          description: user disabled, contact support
+        404:
+          description: user not found
+  /user:
+    get:
+      description: Get user info
+      tags:
+        - Consumer
+        - Solver
+      security:
+        - basicAuth: []
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/User'
+        default:
+          description: Unexpected error
+    put:
+      description: Update user\'s info and education and degree fields
+      tags:
+        - Consumer
+      security:
+        - basicAuth: []
+      parameters:
+        - name: user
+          in: body
+          description: Only some of info, education, degree, iosReview, androidReview fields required. Max length is 1000 bytes for each string field
+          required: true
+          schema:
+            $ref: '#/definitions/User'
+      responses:
+        200:
+          description: OK
+        400:
+          description: Wrong data in request.
+  /user/registration:
+    post:
+      description: Registration of a consumer. If consumer is registered, but not enabled, you can resend registration to fix phone number. It is necessary to resend code.
+      tags:
+        - Consumer
+      parameters:
+        - name: user
+          in: body
+          description: User to add into the system
+          required: true
+          schema:
+            $ref: '#/definitions/Registration'
+      responses:
+        201:
+          description: Created
+        400:
+          description: Parameter was not set correctly
+          schema:
+            $ref: '#/definitions/HttpResponseEntity'
+        409:
+          description: User is already registered or duplicate phone/email
+          schema:
+              $ref: '#/definitions/HttpResponseEntity'
+        503:
+          description: Problems with sms service. Maybe your number is not correct. Contact support
+          schema:
+              $ref: '#/definitions/HttpResponseEntity'
+  /user/registration/verification:
+    post:
+      description: Verify registration by 4-digit code. 3 attempts maximum.
+      tags:
+        - Consumer
+      parameters:
+        - name: code
+          in: body
+          description: 4-digit code from sms
+          required: true
+          schema:
+            type: string
+        - name: name
+          in: query
+          description: user\'s name
+          required: true
+          type: string
+      responses:
+        200:
+          description: OK
+        403:
+          description: Code is not valid
+  /user/registration/verification/code:
+    get:
+      description: Resend user\'s verification code
+      tags:
+        - Consumer
+      parameters:
+        - name: name
+          in: query
+          description: user\'s name
+          required: true
+          type: string
+      responses:
+        200:
+          description: OK
+        503:
+            description: Problems with sms service. Maybe your number is not correct. Contact support
+  /user/fcm:
+    put:
+      description: update gcm notification token
+      tags:
+        - Consumer
+        - Solver
+      security:
+        - basicAuth: []
+      parameters:
+        - name: token
+          in: body
+          description: Update firebase notification token
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+  /user/logout:
+      get:
+        description: clean fcm token
+        tags:
+          - Consumer
+          - Solver
+        security:
+          - basicAuth: []
+        responses:
+          200:
+            description: OK
+  /user/funds:
+    get:
+      description: Add some funds for consumer
+      tags:
+        - Consumer
+      security:
+        - basicAuth: []
+      parameters:
+        - name: amount
+          in: query
+          required: false
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: OK
+          schema:
+            type: string
+            description: html page for user to complete payment
+        403:
+          description: Amount is less than 50 or this user is solver.
+        503:
+          description: service unavailable, contact support
+  /user/payments:
+    get:
+      description: Get list of payments
+      tags:
+        - Consumer
+        - Solver
+      security:
+        - basicAuth: []
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/Payment'
+  /user/promocode:
+    post:
+      description: set user\'s registration promocode
+      tags:
+        - Consumer
+      security:
+        - basicAuth: []
+      parameters:
+        - name: promocode
+          in: body
+          description: characters sequence
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+        403:
+          description: promocode was already set or user inserts his own code
+        404:
+          description: such promocode was not found
+        503:
+          description: service unavailable, contact support
+  /user/photo:
+    post:
+      description: |
+          Update profile\'s photo. Max size is 50 kilobytes. Use "Content-type: multipart/form-data" and put binary data of image in field "file"
+      tags:
+        - Consumer
+        - Solver
+      security:
+        - basicAuth: []
+      responses:
+        200:
+          description: OK
+        413:
+          description: payload is larger than 50 kilobytes.
+        500:
+          description: internal error
+  /user/{name}:
+    get:
+      description: |
+        Get user\'s information. Only name, info, education and rating presented.
+      tags:
+        - Consumer
+        - Solver
+      security:
+        - basicAuth: []
+      parameters:
+        - name: name
+          in: path
+          required: true
+          type: string
+      responses:
+        200:
+          description: OK
+        404:
+          description: user not found
+  /user/{name}/photo:
+    get:
+      description: |
+        Get user\'s photo
+      tags:
+        - Consumer
+        - Solver
+      security:
+        - basicAuth: []
+      parameters:
+        - name: name
+          in: path
+          required: true
+          type: string
+      responses:
+        200:
+          description: OK
+        404:
+          description: user or photo not found
+        500:
+          description: internal error
+  /user/orders/draft:
+    get:
+      description: |
+        Use to create a default order.
+      tags:
+        - Consumer
+      security:
+        - basicAuth: []
+      responses:
+        201:
+          description: Created
+          schema:
+            $ref: '#/definitions/Order'
+  /user/orders:
+    get:
+      description: Array of orders associated with the user
+      tags:
+        - Consumer
+        - Solver
+      security:
+        - basicAuth: []
+      parameters:
+        - name: offset
+          in: query
+          required: false
+          description: default offset is 0
+          type: integer
+          format: int64
+        - name: limit
+          in: query
+          required: false
+          description: default limit is 30
+          type: integer
+          format: int64
+        - name: status
+          in: query
+          required: false
+          description: Filter orders by status. Default value is AVAILABLE. |
+            Also you can use keywords ACTIVE and NON_ACTIVE and separate statuses by comma like AVAILABLE,SOLVED,DONE
+          type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Order'
+    post:
+      description: Make order available for solvers. Remember, that min price is 80 RUB.
+      tags:
+        - Consumer
+      security:
+        - basicAuth: []
+      parameters:
+        - name: order
+          description: place here metadata about the order besides pictures
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Order'
+      responses:
+        201:
+          description: Created
+          schema:
+            $ref: '#/definitions/Order'
+        400:
+          description: The order is already available, reserved or solved.
+        403:
+          description: Not enough available funds.
+        404:
+          description: Check the id of the order. Maybe you do not own this order.
+  /user/orders/{id}:
+    get:
+      description: Information about a concrete order
+      tags:
+        - Consumer
+        - Solver
+      security:
+        - basicAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: order's id
+          required: true
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/Order'
+        404:
+          description: Not found
+    delete:
+      description: Remove order. Available only if the order hasn't been reserved by solver yet.
+      tags:
+        - Consumer
+      security:
+        - basicAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: order's id
+          required: true
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: Removed
+        403:
+          description: |
+            You are not allowed to remove this order.
+            The order doesn't exist or has already been reserved.
+        404:
+          description: The order was not found among your orders.
+  /user/orders/{id}/reject:
+    post:
+      description: Reject solver\'s solution
+      tags:
+        - Consumer
+      security:
+        - basicAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: order's id
+          required: true
+          type: integer
+          format: int64
+      responses:
+        202:
+          description: OK
+        400:
+          description: This action is not available for the order in current state.
+        404:
+          description: The order was not found
+  /user/orders/{id}/done:
+    post:
+      description: Accept solver\'s solution.
+      tags:
+        - Consumer
+      security:
+        - basicAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: order's id
+          required: true
+          type: integer
+          format: int64
+      responses:
+        202:
+          description: OK
+        400:
+          description: This action is not available for the order in current state.
+        404:
+          description: The order was not found
+  /user/orders/{id}/solve:
+    post:
+      description: Mark order solved
+      tags:
+        - Solver
+      security:
+        - basicAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: order's id
+          required: true
+          type: integer
+          format: int64
+      responses:
+        202:
+          description: OK
+        400:
+          description: This action is not available for the order in current state.
+        404:
+          description: The order was not found
+  /user/orders/{id}/appeal:
+    post:
+      description: Appeal rejected order
+      tags:
+        - Solver
+      security:
+        - basicAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: order's id
+          required: true
+          type: integer
+          format: int64
+      responses:
+        202:
+          description: OK
+        400:
+          description: This action is not available for the order in current state.
+        404:
+          description: The order was not found
+  /user/orders/{id}/confirm:
+    post:
+      description: Confirm that order was rejected correctly
+      tags:
+        - Solver
+      security:
+        - basicAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: order's id
+          required: true
+          type: integer
+          format: int64
+      responses:
+        202:
+          description: OK
+        400:
+          description: This action is not available for the order in current state.
+        404:
+          description: The order was not found
+  /user/orders/{id}/suggest:
+    put:
+      description: Confirm price suggestion
+      tags:
+        - Consumer
+      security:
+      - basicAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: order's id
+          required: true
+          type: integer
+          format: int64
+        - name: suggest_id
+          in: query
+          required: true
+          description: suggest id, that user received
+          type: integer
+      responses:
+        202:
+          description: OK
+        400:
+          description: Some error with params. Maybe wrong feed id.
+        404:
+          description: The order was not found
+        405:
+          description: Solver is busy at the moment.
+        406:
+          description: Not enough funds to confirm.
+  /user/orders/{id}/suggestions:
+    get:
+      description: Get price suggestions for the order
+      tags:
+        - Consumer
+      security:
+        - basicAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: order's id
+          required: true
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/PriceSuggestion'
+  /user/orders/{id}/pictures:
+    post:
+      description: Add picture for an order that was not sent to moderation or you expired limit of 3 pictures per order.
+      tags:
+        - Consumer
+      security:
+        - basicAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: integer
+          format: int64
+        - name: picture
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Picture'
+      responses:
+        201:
+          description: Created. \'img\' property of the return is emply
+          schema:
+            $ref: '#/definitions/Picture'
+        400:
+          description: Order was already sent to moderation.
+        404:
+          description: Order was not found
+  /user/orders/{id}/pictures/v2:
+      post:
+        description: |
+          | Deprecated. Use /orders/{id}/pictures/{picture_id}/v2
+            | Advanced method to add pictures. Should be much faster. Use "Content-type: multipart/form-data" and put binary data of image in field "file"
+        tags:
+          - Consumer
+        security:
+          - basicAuth: []
+        consumes: [ "multipart/form-data" ]
+        parameters:
+          - name: id
+            in: path
+            required: true
+            type: integer
+            format: int64
+          - name: counter
+            in: query
+            required: true
+            type: integer
+            format: int64
+        responses:
+          201:
+            description: Created. \'img\' property of the return is emply
+            schema:
+              $ref: '#/definitions/Picture'
+          400:
+            description: Order was already sent to moderation.
+          404:
+            description: Order was not found
+  /user/orders/{id}/maturity:
+    put:
+      description: Set new maturity date for the order. New maturity = old one + diff (diff > 0).
+      tags:
+        - Consumer
+      security:
+        - basicAuth: []
+      parameters:
+        - name: id
+          type: integer
+          in: path
+          required: true
+        - name: diff
+          type: integer
+          format: int64
+          in: query
+          required: true
+      responses:
+        200:
+          description: OK
+        400:
+          description: New date is less than existing.
+        404:
+          description: The order was not found.
+  /user/orders/{id}/pictures/{picture_id}:
+    get:
+      description: Deprecated. Use /orders/{id}/pictures/{picture_id}. Get picture of the order with identifyer 'id'
+      tags:
+        - Consumer
+        - Solver
+      security:
+        - basicAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: integer
+          format: int64
+        - name: picture_id
+          in: path
+          required: true
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/Picture'
+        404:
+          description: Order or picture with given id not found
+    delete:
+      description: Remove picture from order
+      tags:
+        - Consumer
+      security:
+        - basicAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: integer
+          format: int64
+        - name: picture_id
+          in: path
+          required: true
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: Removed
+        400:
+          description: The order was not found among your orders.
+        404:
+          description: The picture was not found.
+        405:
+          description: The order is not in DRAFTs.
+  /subjects:
+    get:
+      description: Get all available subjects
+      tags:
+        - Constants
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Subject'
+  /subjects/{subject_id}/icon:
+    get:
+      description: |
+        Get subject\'s icon
+      tags:
+        - Consumer
+        - Solver
+      security:
+        - basicAuth: []
+      parameters:
+        - name: subject_id
+          in: path
+          required: true
+          type: string
+      responses:
+        200:
+          description: OK
+        404:
+          description: subject or icon not found
+        500:
+          description: internal error
+  /themes:
+    get:
+      description: Get all available themes. Theme\'s id divided by 100 is the corresponding subject\'s id.
+      tags:
+        - Constants
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Theme'
+  /messageTypes:
+    get:
+      description: Get all available message types.
+      tags:
+        - Constants
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/MessageType'
+  /orders:
+    get:
+      description: Get available for solving orders.
+      tags:
+        - Solver
+      security:
+        - basicAuth: []
+      parameters:
+        - name: offsetDate
+          in: query
+          required: false
+          description: default value if 2000000000000 (about 2033 year). There are orders with it\'s date less or equal than specified.
+          type: integer
+          format: int64
+        - name: offset
+          in: query
+          required: false
+          description: default offset is 0
+          type: integer
+          format: int64
+        - name: limit
+          in: query
+          required: false
+          description: default limit is 30
+          type: integer
+          format: int64
+        - name: subject
+          in: query
+          description: |
+            subject\'s id, no filter will be applied if not set
+          type: integer
+          format: int
+          required: false
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Order'
+  /orders/{id}:
+    get:
+      description: Get single order from AVAILABLE
+      tags:
+        - Solver
+      security:
+        - basicAuth: []
+      parameters:
+        - name: id
+          type: integer
+          format: int64
+          required: true
+          in: path
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/Order'
+        404:
+          description: No such order among AVAILABLE
+    put:
+      description: Reserve order to solve later. Limit is 2 orders.
+      tags:
+        - Solver
+      security:
+        - basicAuth: []
+      parameters:
+        - name: id
+          type: integer
+          format: int64
+          required: true
+          in: path
+      responses:
+        200:
+          description: OK
+        403:
+          description: The order has already been reserved.
+        405:
+          description: Solver can't reserve more orders, or this order is only for price suggestions
+  /orders/{id}/suggest:
+    post:
+      summary: Suggest price for order.
+      tags:
+        - Solver
+      security:
+        - basicAuth: []
+      parameters:
+        - name: id
+          type: integer
+          format: int64
+          required: true
+          in: path
+        - name: price
+          in: query
+          required: true
+          type: integer
+        - name: comment
+          in: body
+          format: string
+      responses:
+        200:
+          description: OK
+        403:
+          description: Order is not AVAILABLE any more
+        404:
+          description: Order was not found
+        405:
+          description: Price is less than 80
+  /orders/{id}/pictures:
+    get:
+      description: Get order\'s pictures, without binary data (img field)
+      tags:
+        - Solver
+      security:
+        - basicAuth: []
+      parameters:
+        - name: id
+          type: integer
+          format: int64
+          in: path
+          required: true
+      responses:
+        200:
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Picture'
+          description: OK
+        403:
+          description: the order is not available
+        404:
+          description: the order was not found
+  /orders/{id}/pictures/{picture_id}:
+    get:
+          description: Get order\'s picture
+          tags:
+            - Solver
+          security:
+            - basicAuth: []
+          parameters:
+            - name: id
+              type: integer
+              format: int64
+              in: path
+              required: true
+            - name: picture_id
+              type: integer
+              format: int64
+              in: path
+              required: true
+          responses:
+            200:
+              schema:
+                $ref: '#/definitions/Picture'
+              description: OK
+            404:
+              description: the order or the picture was not found
+  /orders/{id}/pictures/{picture_id}/v2:
+      get:
+          description: Get order\'s picture as byte stream
+          produces:
+            - image/jpeg
+          tags:
+            - Solver
+          security:
+            - basicAuth: []
+          parameters:
+            - name: id
+              type: integer
+              format: int64
+              in: path
+              required: true
+            - name: picture_id
+              type: integer
+              format: int64
+              in: path
+              required: true
+          responses:
+            200:
+              description: OK
+            404:
+              description: the order or the picture was not found
+  /chats:
+    get:
+      description: Get user\'s chats
+      tags:
+        - Consumer
+        - Solver
+        - Chats
+      security:
+        - basicAuth: []
+      parameters:
+        - name: status
+          in: query
+          required: false
+          description: Filter chats by status (OPEN, CLOSED, ALL). Default value is ALL.
+          type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Chat'
+  /chats/{id}/messages:
+    get:
+      description: Get chat\'s messages
+      tags:
+        - Consumer
+        - Solver
+        - Chats
+      security:
+        - basicAuth: []
+      parameters:
+        - name: id
+          type: integer
+          format: int64
+          in: path
+          required: true
+        - name: date
+          in: query
+          required: false
+          type: integer
+          format: int64
+          description: Get messages that were sent later than particular date. Default value is 0.
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Message'
+        403:
+          description: You're not a participant of the conversation
+        404:
+          description: The chat was not found
+    post:
+      description: Send message
+      tags:
+        - Consumer
+        - Solver
+        - Chats
+      security:
+        - basicAuth: []
+      parameters:
+        - name: id
+          type: integer
+          format: int64
+          in: path
+          required: true
+        - name: chat
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Message'
+      responses:
+        201:
+          description: Created. Returns message date.
+          schema:
+            $ref: '#/definitions/Message'
+        403:
+          description: You're not a participant of the conversation or the order is already solved
+        404:
+          description: The chat was not found
+  /chats/{id}/messages/v2:
+    post:
+      description: |
+                    | Advanced method to send pictures in message. Should be much faster.
+                    | Use "Content-type: multipart/form-data" and put binary data of image in field "file"
+      tags:
+        - Consumer
+        - Solver
+        - Chats
+      security:
+        - basicAuth: []
+      consumes: [ "multipart/form-data" ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: integer
+          format: int64
+        - name: height
+          in: query
+          required: false
+          type: integer
+          format: int64
+        - name: width
+          in: query
+          required: false
+          type: integer
+          format: int64
+      responses:
+        201:
+          description: Created. Returns message date.
+          schema:
+            $ref: '#/definitions/Message'
+        403:
+          description: You're not a participant of the conversation or the order is already solved
+        404:
+          description: The chat was not found
+  /chats/{id}/messages/{message_id}:
+      get:
+        description: Get message.
+        tags:
+          - Consumer
+          - Solver
+          - Chats
+        security:
+          - basicAuth: []
+        parameters:
+          - name: id
+            type: integer
+            format: int64
+            in: path
+            required: true
+          - name: message_id
+            type: integer
+            format: int64
+            in: path
+            required: true
+        responses:
+          200:
+            description: OK
+            schema:
+              $ref: '#/definitions/Message'
+          404:
+            description: The message was not found
+  /chats/{id}/messages/{message_id}/v2:
+        get:
+          description: Get message as byte stream
+          produces:
+            - image/jpeg
+          tags:
+            - Consumer
+            - Solver
+            - Chats
+          security:
+            - basicAuth: []
+          parameters:
+            - name: id
+              type: integer
+              format: int64
+              in: path
+              required: true
+            - name: message_id
+              type: integer
+              format: int64
+              in: path
+              required: true
+          responses:
+            200:
+              description: OK
+            404:
+              description: The message was not found
+            500:
+              description: Internal server error.
+  /chats/{id}/participants:
+      get:
+        description: Get chat\'s participants
+        tags:
+          - Consumer
+          - Solver
+          - Chats
+        security:
+          - basicAuth: []
+        parameters:
+          - name: id
+            type: integer
+            format: int64
+            in: path
+            required: true
+        responses:
+          200:
+            description: OK
+            schema:
+              type: array
+              items:
+                $ref: '#/definitions/User'
+          404:
+            description: The chat was not found
+  /chats/{id}/messages/read:
+      get:
+        description: Get your last message (only id), that another user has read
+        tags:
+          - Consumer
+          - Solver
+          - Chats
+        security:
+          - basicAuth: []
+        parameters:
+          - name: id
+            description: chat\'s id
+            type: integer
+            format: int64
+            in: path
+            required: true
+        responses:
+          200:
+            description: OK
+            schema:
+              $ref: '#/definitions/Message'
+      put:
+        description: Update state of messages, after you read them.
+        tags:
+          - Consumer
+          - Solver
+          - Chats
+        security:
+          - basicAuth: []
+        parameters:
+          - name: id
+            description: chat\'s id
+            type: integer
+            format: int64
+            in: path
+            required: true
+          - name: lastId
+            description: id of last message, you have read
+            type: integer
+            format: int64
+            in: query
+            required: true
+        responses:
+          200:
+            description: OK
+definitions:
+  HttpResponseEntity:
+    type: object
+    properties:
+      error:
+        type: string
+        description: Description of an occured error. Every object below extends HttpResponse entity and
+          in case of an error, may have not empty field to show for user
+  PassRecovery:
+    type: object
+    properties:
+      name:
+        type: string
+        description: should satisfy regexp [a-zA-Z0-9_/\\\[\]\.\{\}\-]+
+      phone:
+        type: string
+      code:
+        type: integer
+        format: int64
+      password:
+        type: string
+        description: should satisfy regexp [a-zA-Z0-9_/\\\[\]\.\{\}\-]+
+  User:
+    type: object
+    properties:
+      name:
+        type: string
+        description: should satisfy regexp [a-zA-Z0-9_/\\\[\]\.\{\}\-]+ and can't consist only from numbers
+      email:
+        type: string
+        description: DEPRECATED
+      phone:
+        type: string
+      fcmToken:
+        description: token to use for notifications server
+        type: string
+      isCustomer:
+        type: boolean
+      promocode:
+        description: sequence of characters to invite friends
+        type: string
+      funds:
+        type: number
+        format: double
+      reservedFunds:
+        type: number
+        format: double
+      commission:
+        type: number
+        format: float
+      info:
+        type: string
+        format: binary
+        description: utf-8 string
+      education:
+        type: string
+        description: utf-8 string
+      degree:
+        type: string
+        description: utf-8 string, representing class, course or other academic degree
+      campaign:
+        type: string
+        description: source, from where this user came
+      iosReview:
+        type: string
+        description: if true, then user reviewed application in AppStore. can be changed via PUT /user method
+      androidReview:
+        type: string
+        description: if true, then user reviewed application in PlayStore. can be changed via PUT /user method
+  Registration:
+    type: object
+    properties:
+      name:
+        type: string
+        description: should satisfy regexp [a-zA-Z0-9_/\\\[\]\.\{\}\-]+
+      password:
+        type: string
+        description: should satisfy regexp [a-zA-Z0-9_/\\\[\]\.\{\}\-]+
+      email:
+        type: string
+      phone:
+        type: string
+      token:
+        type: string
+      campaign:
+        type: string
+        description: source, from where this user came
+  Picture:
+    type: object
+    properties:
+      id:
+        type: integer
+        format: int64
+      counter:
+        type: integer
+        format: int64
+        description: Field to sort pictures. You had better use unix-timestamp to set this filed.
+      img:
+        $ref: '#/definitions/PictureData'
+  PictureData:
+    type: object
+    properties:
+      data:
+        type: string
+        format: binary
+        description: base64 binary representation of the image
+  Order:
+    type: object
+    description: Every property of theme except \'id\' is ignored.
+    properties:
+      id:
+        type: integer
+        format: int64
+      status:
+        type: string
+      date:
+        type: integer
+        format: int64
+        description: unix time
+      maturityDate:
+        type: integer
+        format: int64
+        description: unix time
+      comment:
+        type: string
+        format: binary
+        description: base64 binary representation of string
+      theme:
+        $ref: '#/definitions/Theme'
+      pictures:
+        description: This field contains only ids and counters of pictures.
+        type: array
+        items:
+          $ref: '#/definitions/Picture'
+      price:
+        description: min value is 90
+        type: integer
+        format: int64
+      tasksCnt:
+        description: number of tasks
+        type: integer
+        format: int64
+      chat:
+        $ref: '#/definitions/Chat'
+      user:
+        description: Contains customer\'s login and flag isCustomer
+        $ref: '#/definitions/User'
+      solver:
+        description: Contains solver\'s login and flag isCustomer
+        $ref: '#/definitions/User'
+  Subject:
+    type: object
+    properties:
+      id:
+        type: integer
+        format: int64
+      subject:
+        type: string
+      subjectRU:
+        type: string
+        format: binary
+  Theme:
+    type: object
+    properties:
+      id:
+        type: integer
+        format: int64
+      theme:
+        type: string
+      themeRU:
+        type: string
+        format: binary
+      subject:
+        $ref: '#/definitions/Subject'
+  Chat:
+    type: object
+    description: All properties of order except id are ignored
+    properties:
+      id:
+        type: integer
+        format: int64
+      order:
+        $ref: '#/definitions/Order'
+      status:
+        type: string
+        description: OPEN, CLOSED
+  MessageType:
+    type: object
+    properties:
+      id:
+        type: integer
+        format: int64
+      title:
+        type: string
+  Message:
+    type: object
+    description: All properties of user except name are ignored
+    properties:
+      messageType:
+        $ref: '#/definitions/MessageType'
+      id:
+        type: integer
+        format: int64
+      date:
+        type: integer
+        format: int64
+      data:
+        type: string
+        format: binary
+      isRead:
+        type: boolean
+      user:
+        $ref: '#/definitions/User'
+      height:
+        type: integer
+        format: int64
+        description: height of the picture in pixels. default is 480
+      width:
+        type: integer
+        format: int64
+        description: width of the picture in pixels. default is 320
+  PriceSuggestion:
+    type: object
+    description: price suggest from solver
+    properties:
+      id:
+        type: integer
+        format: int64
+      price:
+        type: integer
+        format: int64
+      comment:
+        type: string
+      order:
+        $ref: '#/definitions/Order'
+        description: contains only id
+      solver:
+        $ref: '#/definitions/User'
+  Payment:
+    type: object
+    description: payment info
+    properties:
+      id:
+        type: integer
+        format: int64
+      amount:
+        type: number
+        format: float
+      commission:
+        type: number
+        format: float
+        description: Value between 0 and 1. Only required when amount if less than zero.

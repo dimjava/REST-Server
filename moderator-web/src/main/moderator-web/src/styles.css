@@ -1,0 +1,6 @@
+/* You can add global styles to this file, and also import other style files */
+table.table ul.dropdown-menu{
+    position:relative;
+    float:none;
+    max-width:160px;
+}

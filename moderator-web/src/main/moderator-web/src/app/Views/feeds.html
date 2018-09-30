@@ -1,0 +1,54 @@
+<button class="btn btn-success" (click)="lgModal.show()">Create feed</button>
+<button class="btn bnt-info" (click)="onChangeTable(config)" style="float: right"><i class="fa fa-refresh" aria-hidden="true"></i></button>
+<div bsModal #lgModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title pull-left">Create feed</h4>
+                <button type="button" class="close pull-right" (click)="lgModal.hide(); clearNotification()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form (ngSubmit)="onSubmit(); lgModal.hide(); clearNotification();" #feedForm="ngForm">
+                    <div class="form-group">
+                        <label for="name">List of users</label>
+                        <textarea id="name"
+                                  placeholder="List names separated by commas or one user in one line or keyword USER or SOLVER"
+                                  class="form-control"
+                                  [(ngModel)]="names2Notify" name="names2Notify"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="title2Notify">Title</label>
+                        <input type="text" class="form-control" id="title2Notify" [(ngModel)]="title2Notify" name="title2Notify">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="message2Notify">Message</label>
+                        <input type="text" class="form-control" id="message2Notify" [(ngModel)]="message2Notify" name="message2Notify">
+                    </div>
+
+                    <button type="submit" class="btn btn-success">Send</button>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<ng-table [config]="config"
+          [rows]="rows" [columns]="columns" [buttons]="buttons"
+          (cellClicked)="onCellClick($event)"
+          (tableChanged)="onChangeTable(config)">
+</ng-table>
+<pagination *ngIf="config.paging"
+            class="pagination-sm"
+            [(ngModel)]="page"
+            [totalItems]="length"
+            [itemsPerPage]="itemsPerPage"
+            [maxSize]="maxSize"
+            [boundaryLinks]="true"
+            [rotate]="false"
+            (pageChanged)="onChangeTable(config, $event)"
+            (numPages)="numPages = $event">
+</pagination>

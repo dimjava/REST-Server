@@ -1,0 +1,33 @@
+<ngb-tabset justify="center">
+    <ngb-tab>
+        <ng-template ngbTabTitle><a routerLink="/Orders" routerLinkActive="true">Orders</a></ng-template>
+        <ng-template ngbTabContent>
+            <router-outlet></router-outlet>
+        </ng-template>
+    </ngb-tab>
+    <ngb-tab>
+        <ng-template ngbTabTitle><a routerLink="/Users">Users</a></ng-template>
+        <ng-template ngbTabContent>
+            <router-outlet></router-outlet>
+        </ng-template>
+    </ngb-tab>
+    <ngb-tab>
+        <ng-template ngbTabTitle><a routerLink="/Payments">Payments</a></ng-template>
+        <ng-template ngbTabContent>
+            <router-outlet></router-outlet>
+        </ng-template>
+    </ngb-tab>
+    <ngb-tab>
+        <ng-template ngbTabTitle><a routerLink="/Feeds">Feeds</a></ng-template>
+        <ng-template ngbTabContent>
+            <router-outlet></router-outlet>
+        </ng-template>
+    </ngb-tab>
+    <ngb-tab>
+        <ng-template ngbTabTitle><a routerLink="/Reports">Reports</a></ng-template>
+        <ng-template ngbTabContent>
+            <router-outlet></router-outlet>
+        </ng-template>
+    </ngb-tab>
+</ngb-tabset>
+

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataset>
+    <messages_types/>
+    <messages/>
+    <chats/>
+    <pictures/>
+    <orders/>
+
+    <users name="antony" enabled="true" password="some" email="antony@email.ru" phone="2222" is_customer="true" attempts="0"/>
+    <authorities user_name="antony" authority="USER"/>
+    <payments/>
+</dataset>

@@ -1,0 +1,59 @@
+<button class="btn btn-success" (click)="lgModal.show()">Add or Withdraw</button>
+<button class="btn bnt-info" (click)="onChangeTable(config)" style="float: right"><i class="fa fa-refresh" aria-hidden="true"></i></button>
+<div bsModal #lgModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title pull-left">Add or Withdraw funds</h4>
+                <button type="button" class="close pull-right" (click)="lgModal.hide(); clearFundsModal()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form (ngSubmit)="onSubmit(); lgModal.hide(); clearFundsModal();" #feedForm="ngForm">
+
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" class="form-control" id="name" [(ngModel)]="name2Add" name="name2Add">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="amount">Amount</label>
+                        <input type="text" placeholder="Can be less than 0" class="form-control"
+                               id="amount" [(ngModel)]="amount2Add" name="amount2Add">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="commission">Commission</label>
+                        <input type="text" placeholder="Number from 0 to 1. If not set default user's commission applied" class="form-control"
+                               id="commission" [(ngModel)]="commission" name="commission">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="comment">Comment</label>
+                        <input type="text" class="form-control" id="comment" [(ngModel)]="comment2Add" name="comment2Add">
+                    </div>
+
+                    <button type="submit" class="btn btn-success">Commit</button>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<ng-table [config]="config"
+          [rows]="rows" [columns]="columns" [buttons]="buttons"
+          (cellClicked)="onCellClick($event)"
+          (tableChanged)="onChangeTable(config)">
+</ng-table>
+<pagination *ngIf="config.paging"
+            class="pagination-sm"
+            [(ngModel)]="page"
+            [totalItems]="length"
+            [itemsPerPage]="itemsPerPage"
+            [maxSize]="maxSize"
+            [boundaryLinks]="true"
+            [rotate]="false"
+            (pageChanged)="onChangeTable(config, $event)"
+            (numPages)="numPages = $event">
+</pagination>

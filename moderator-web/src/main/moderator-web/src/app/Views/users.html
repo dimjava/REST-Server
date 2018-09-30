@@ -1,0 +1,71 @@
+<button class="btn btn-success" (click)="lgModal.show()">Register solver</button>
+<button class="btn bnt-info" (click)="onChangeTable(config)" style="float: right"><i class="fa fa-refresh" aria-hidden="true"></i></button>
+<div bsModal #lgModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title pull-left">Register solver</h4>
+                <button type="button" class="close pull-right" (click)="lgModal.hide(); cleanRegistrationModal()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form (ngSubmit)="onSolverRegistrationSubmit(); lgModal.hide(); cleanRegistrationModal()" #feedForm="ngForm">
+                    <div class="form-group">
+                        <label for="login">Login</label>
+                        <input type="text" class="form-control" id="login" [(ngModel)]="login" name="login">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="text" class="form-control" id="password" [(ngModel)]="password" name="password">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="text" class="form-control" id="email" [(ngModel)]="email" name="email">
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone</label>
+                        <input type="text" placeholder="+79999999999" class="form-control" id="phone" [(ngModel)]="phone" name="phone">
+                    </div>
+                    <div class="form-group">
+                        <label for="rating">Rating</label>
+                        <input type="text" placeholder="From 0.0 to 5.0" class="form-control" id="rating" [(ngModel)]="rating" name="rating">
+                    </div>
+                    <div class="form-group">
+                        <label for="education">Education</label>
+                        <textarea id="education"
+                                  placeholder="Info about university etc"
+                                  class="form-control"
+                                  [(ngModel)]="education" name="education"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="info">Info</label>
+                        <textarea id="info"
+                                  placeholder="Any additional information"
+                                  class="form-control"
+                                  [(ngModel)]="info" name="info"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-success">Send</button>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<ng-table [config]="config"
+          (cellClicked)="onCellClick($event)"
+          (actionsclicked)="onActionClick($event)"
+          (tableChanged)="onChangeTable(config)"
+          [rows]="rows" [columns]="columns" [buttons]="buttons">
+</ng-table>
+<pagination *ngIf="config.paging"
+            class="pagination-sm"
+            [(ngModel)]="page"
+            [totalItems]="length"
+            [itemsPerPage]="itemsPerPage"
+            [maxSize]="maxSize"
+            [boundaryLinks]="true"
+            [rotate]="false"
+            (pageChanged)="onChangeTable(config, $event)"
+            (numPages)="numPages = $event">
+</pagination>

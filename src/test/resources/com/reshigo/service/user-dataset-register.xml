@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataset>
+    <subjects/>
+    <themes/>
+
+    <users name="antony" funds="0.00" reserved_funds="0.00" enabled="true" password="some" email="antony@email.ru" phone="+79260000000" is_customer="true" attempts="0"/>
+    <users name="dmitry" funds="0.00" reserved_funds="0.00" enabled="false" password="pass" email="dmitry@email.ru" phone="+79260000002" is_customer="true" attempts="0"/>
+    <authorities user_name="antony" authority="USER"/>
+    <authorities user_name="dmitry" authority="USER"/>
+    <payments/>
+
+
+    <chats/>
+    <chats_users/>
+    <orders/>
+    <pictures/>
+    <message_types/>
+    <message/>
+</dataset>
